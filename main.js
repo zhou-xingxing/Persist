@@ -12,12 +12,7 @@ function createMainWindow() {
         }
     })
 
-    // https://stackoverflow.com/questions/63827841/receive-data-sent-from-loadfile-to-html-page-in-electron
-    win.loadFile('main.html', {
-        query: {
-            'habit': 'demo'
-        },
-    }).then()
+    win.loadFile('index.html').then()
 
     ipcMain.on('writeJsonFile', (event, data, fileUrl) => {
         // 同步通信必须要设置回复内容
@@ -25,6 +20,16 @@ function createMainWindow() {
     })
     ipcMain.on('getHabitList', (event) => {
         event.returnValue = getHabitList()
+    })
+
+    // https://stackoverflow.com/questions/63827841/receive-data-sent-from-loadfile-to-html-page-in-electron
+    ipcMain.on('openHabitWindow', (event, habitID) => {
+        // createMainWindow(habitID)
+        win.loadFile('habit.html', {
+            query: {
+                'habit': habitID
+            },
+        }).then()
     })
 }
 

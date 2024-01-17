@@ -1,15 +1,1 @@
-{
-  "id": "demo",
-  "title": "每日健身",
-  "description": "每天健身30分钟，健康工作一辈子",
-  "createTime": 1703396491,
-  "type": "CheckIn",
-  "display": {
-    "min": 0,
-    "max": 1,
-    "splitNumber": 1,
-    "theme": "grey",
-    "dateRangeType": "six-month",
-    "firstDay": 1
-  }
-}
+{"id":"demo","title":"每日健身","description":"每天健身30分钟，健康工作一辈子;每天健身30分钟，健康工作一辈子;每天健身30分钟，健康工作一辈子","createTime":1703396491,"type":"CheckIn","display":{"min":0,"max":1,"splitNumber":1,"theme":"purple","dateRangeType":"six-month","firstDay":1}}

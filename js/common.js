@@ -19,7 +19,7 @@ export function getJsonData(url) {
         success: function (jsonData) {
             data = jsonData
         },
-        error: function (request, textStatus) {
+        error: function (request) {
             console.log('getJsonData failed ' + 'url: ' + url)
             console.log(request.status, request.responseText)
         }

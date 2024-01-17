@@ -11,7 +11,7 @@ let recordUrl = null
 $(document).ready(function () {
     loadHabitList()
     if (habit == null) {
-        // 第一次加载页面使用默认habit
+        // 第一次加载页面使用传入的参数habit
         const initHabit = getInitHabit()
         toggleHabit(initHabit)
     }

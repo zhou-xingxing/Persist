@@ -7,5 +7,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     getHabitList: () => {
         return ipcRenderer.sendSync('getHabitList')
+    },
+    openHabitWindow: (habitID) => {
+        ipcRenderer.send('openHabitWindow', habitID)
     }
 })
