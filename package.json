@@ -1,0 +1,14 @@
+{
+  "name": "persist",
+  "version": "1.0.0",
+  "description": "Persist Project",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron ."
+  },
+  "author": "maoze",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^28.1.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "demo2",
+  "title": "每日刷题",
+  "description": "每天刷题，升职加薪",
+  "createTime": 1703396491,
+  "type": "Count",
+  "display": {
+    "max": 30,
+    "splitNumber": 5,
+    "theme": "blue",
+    "dateRangeType": "six-month",
+    "firstDay": 1
+  }
+}
