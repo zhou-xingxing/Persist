@@ -166,7 +166,6 @@ $('#reset').click(function () {
 $('#historyCheck').click(function () {
     $('#datepicker').val(null)
     $('#historyCheckCountInput').val(0)
-    $('#historyCheckConfirm').removeAttr('disabled').text('确认')
 })
 
 $('#historyCheckConfirm').click(function () {
@@ -208,9 +207,8 @@ $('#historyCheckConfirm').click(function () {
         return
     }
     drawHeatMap(habit)
-    $(this).text('补卡成功')
-    // ToDo 改成关闭模态框
-    $(this).attr('disabled', 'true')
+    alert('补卡成功!')
+    $('#historySelect').modal('hide')
 })
 
 

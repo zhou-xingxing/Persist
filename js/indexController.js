@@ -43,6 +43,16 @@ function loadHabitList() {
     })
 }
 
+$('#newHabitButton').click(function () {
+    //清空模态框所有内容
+    $('#newHabitTitle').val(null)
+    $('#newHabitType').val('CheckIn')
+    $('#newHabitCountSettings').css('display', 'none')
+    $('#newHabitCountMax').val(null)
+    $('#newHabitSplitNum').val(null)
+    $('#newHabitDescription').val(null)
+})
+
 $('#newHabitType').on('change', function () {
     const selectedValue = $(this).val()
     if (selectedValue === 'Count') {
@@ -112,7 +122,7 @@ $('#newHabitConfirm').click(function () {
         console.log(err)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
     } else {
-        alert('新习惯创建成功')
+        alert('新习惯创建成功!')
         $('#newHabitModal').modal('hide')
         // 刷新习惯列表
         loadHabitList()

@@ -16,7 +16,7 @@
         <h1>习惯列表</h1>
     </div>
     <div class="text-end" style="margin: 15px auto">
-        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#newHabitModal">新建习惯</button>
+        <button id="newHabitButton" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#newHabitModal">新建习惯</button>
     </div>
 
     <div class="row row-cols-1 row-cols-3 g-4" id="habitList">
@@ -48,7 +48,7 @@
                     <label for="newHabitType">新习惯的类型</label>
                     <span class="text-danger">*</span>
                     <select class="form-select" id="newHabitType">
-                        <option selected value="CheckIn">打卡签到型</option>
+                        <option value="CheckIn">打卡签到型</option>
                         <option value="Count">打卡计数型</option>
                     </select>
                 </div>
