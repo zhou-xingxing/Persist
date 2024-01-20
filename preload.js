@@ -10,5 +10,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     openHabitWindow: (habitID) => {
         ipcRenderer.send('openHabitWindow', habitID)
+    },
+    openIndexWindow: () => {
+        ipcRenderer.send('openIndexWindow')
     }
 })

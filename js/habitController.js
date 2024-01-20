@@ -237,3 +237,7 @@ $('#theme').change(function () {
     }
     drawHeatMap(habit)
 })
+
+$('#returnToIndex').click(function () {
+    window.electronAPI.openIndexWindow()
+})

@@ -31,6 +31,10 @@ function createMainWindow() {
             },
         }).then()
     })
+
+    ipcMain.on('openIndexWindow', (event) => {
+        win.loadFile('index.html').then()
+    })
 }
 
 function writeJsonFile(data, fileUrl) {
