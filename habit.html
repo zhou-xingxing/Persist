@@ -103,12 +103,12 @@
 
             <!-- 模态框内容 -->
             <div class="modal-body">
-                <div>
-                    <span>请选择你要补打卡的时间</span>
+                <div style="margin: 10px auto">
+                    <label for="datepicker">请选择你要补打卡的时间</label>
                     <input id="datepicker" class="form-control" type="date"/>
                 </div>
-                <div id="historyCheckCount" style="display:none">
-                    <span>请选择你要补打卡的次数</span>
+                <div id="historyCheckCount" style="display:none;margin: 10px auto">
+                    <label for="historyCheckCountInput">请选择你要补打卡的次数</label>
                     <input id="historyCheckCountInput" class="form-control" type="number" min="1"/>
                 </div>
             </div>
@@ -118,7 +118,6 @@
                 <button id="historyCheckConfirm" type="button" class="btn btn-outline-success">确认</button>
                 <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">关闭</button>
             </div>
-
         </div>
     </div>
 </div>

@@ -31,7 +31,7 @@ function loadHabitList() {
             <div class="card-body">
                 <h5 class="card-title">${config.title}</h5>
                 <p class="card-text">${config.description}</p>
-                <button class="btn btn-primary float-end" name="toggleHabit" value="${config.id}">切换</button>
+                <button class="btn btn-outline-primary float-end" name="toggleHabit" value="${config.id}">切换</button>
             </div>
         </div>
         `
@@ -209,6 +209,7 @@ $('#historyCheckConfirm').click(function () {
     }
     drawHeatMap(habit)
     $(this).text('补卡成功')
+    // ToDo 改成关闭模态框
     $(this).attr('disabled', 'true')
 })
 

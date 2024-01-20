@@ -11,15 +11,75 @@
     <title>Persist</title>
 </head>
 <body>
-    <div class="container-fluid tex" style="padding: 10px 30px 30px 30px">
-        <div class="text-center" style="margin: 20px auto">
-            <h1>习惯列表</h1>
-        </div>
+<div class="container-fluid" style="padding: 10px 30px 30px 30px">
+    <div class="text-center" style="margin: 20px auto">
+        <h1>习惯列表</h1>
+    </div>
+    <div class="text-end" style="margin: 15px auto">
+        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#newHabitModal">新建习惯</button>
+    </div>
 
-        <div class="row row-cols-1 row-cols-3 g-4" id="habitList">
-<!--            动态填充-->
+    <div class="row row-cols-1 row-cols-3 g-4" id="habitList">
+        <!--            动态填充-->
+    </div>
+</div>
+<script src="js/indexController.js" type="module"></script>
+</body>
+
+<!-- 模态框：新建习惯 -->
+<div class="modal fade " id="newHabitModal">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">新建习惯</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- 模态框内容 -->
+            <div class="modal-body">
+                <div style="margin: 10px auto">
+                    <label for="newHabitTitle">新习惯的名称</label>
+                    <span class="text-danger">*</span>
+                    <input id="newHabitTitle" class="form-control" type="text" maxlength="15"/>
+                    <span class="form-text text-muted">最多支持15个字符~</span>
+                </div>
+                <div style="margin: 10px auto">
+                    <label for="newHabitType">新习惯的类型</label>
+                    <span class="text-danger">*</span>
+                    <select class="form-select" id="newHabitType">
+                        <option selected value="CheckIn">打卡签到型</option>
+                        <option value="Count">打卡计数型</option>
+                    </select>
+                </div>
+                <!--计数型专有-->
+                <div id="newHabitCountSettings" style="display: none;margin: 0 0 0 20px" class="border">
+                    <div style="margin: 10px 10px">
+                        <label for="newHabitCountMax">您认为新习惯每日打卡次数的合理上限</label>
+                        <span class="text-danger">*</span>
+                        <input id="newHabitCountMax" class="form-control" type="number" min="1"/>
+                        <span class="form-text text-muted">该数值只是为了热力图展示需要，打卡次数超过该数值也是可以的~</span>
+                    </div>
+                    <div style="margin: 0 10px 15px">
+                        <label for="newHabitSplitNum">您希望新习惯打卡次数在热力图上的展示划分为几级</label>
+                        <span class="text-danger">*</span>
+                        <input id="newHabitSplitNum" class="form-control" type="number" min="1"/>
+                    </div>
+                </div>
+                <div style="margin: 10px auto">
+                    <label for="newHabitDescription">新习惯的简介</label>
+                    <textarea id="newHabitDescription" class="form-control" rows="3" maxlength="65"></textarea>
+                    <span class="form-text text-muted">最多支持65个字符~</span>
+                </div>
+            </div>
+
+            <!-- 模态框底部 -->
+            <div class="modal-footer container text-center">
+                <button id="newHabitConfirm" type="button" class="btn btn-outline-success">确认</button>
+                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">关闭</button>
+            </div>
         </div>
     </div>
-    <script src="js/indexController.js" type="module"></script>
-</body>
+</div>
+
 </html>
