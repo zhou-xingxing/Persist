@@ -25,6 +25,9 @@ function loadHabitList() {
         console.error("get habit list error:", habitConfigListOrErr)
         return
     }
+    habitConfigListOrErr.sort(function (a, b) {
+        return b.createTime - a.createTime
+    })
     habitConfigListOrErr.forEach(config => {
         const cardHTML = `
             <div class="card" style="margin:0 15px 30px 15px">

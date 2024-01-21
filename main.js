@@ -35,6 +35,10 @@ function createMainWindow() {
     ipcMain.on('openIndexWindow', (event) => {
         win.loadFile('index.html').then()
     })
+
+    ipcMain.on('deleteFile', (event, fileUrl) => {
+        event.returnValue = deleteFile(fileUrl)
+    })
 }
 
 function writeJsonFile(data, fileUrl) {
@@ -43,6 +47,17 @@ function writeJsonFile(data, fileUrl) {
     try {
         // 同步写文件
         fs.writeFileSync(dataPath, dataStr)
+    } catch (err) {
+        console.error(err)
+        return err
+    }
+    return null
+}
+
+function deleteFile(fileUrl) {
+    const dataPath = path.join(__dirname, fileUrl)
+    try {
+        fs.unlinkSync(dataPath)
     } catch (err) {
         console.error(err)
         return err

@@ -1,4 +1,4 @@
-import {generateUUID, getConfigUrl} from "./common.js";
+import {generateUUID, getConfigUrl, getRecordUrl} from "./common.js";
 import {TEXT_CONTENT} from "./const.js";
 
 const DEFAULT_THEME = 'green'
@@ -25,6 +25,11 @@ function loadHabitList() {
              <div class="col">
                 <div class="card h-100">
                     <div class="card-body">
+                        <span class="text-danger float-end" role="button" name="deleteHabit" value="${config.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                            </svg>
+                        </span>
                         <h5 class="card-title">${config.title}</h5>
                         <p class="card-text">${config.description}</p>
                     </div>
@@ -40,6 +45,22 @@ function loadHabitList() {
     $('[name="toggleHabit"]').click(function () {
         const habitID = $(this).val()
         window.electronAPI.openHabitWindow(habitID)
+    })
+    $('[name=deleteHabit]').click(function () {
+        const habitID = $(this).attr('value')
+        const configUrl = getConfigUrl(habitID)
+        const recordUrl = getRecordUrl(habitID)
+        let err = window.electronAPI.deleteFile(configUrl)
+        if (err != null) {
+            alert(TEXT_CONTENT.SYSTEM_ERROR)
+            console.error(`delete ${configUrl} failed, err: `, err)
+            return
+        }
+        err = window.electronAPI.deleteFile(recordUrl)
+        if (err != null) {
+            console.warn(`delete ${recordUrl} failed, err: `, err)
+        }
+        loadHabitList()
     })
 }
 

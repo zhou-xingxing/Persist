@@ -13,5 +13,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     openIndexWindow: () => {
         ipcRenderer.send('openIndexWindow')
+    },
+    deleteFile: (fileUrl) => {
+        return ipcRenderer.sendSync('deleteFile', fileUrl)
     }
 })
