@@ -100,6 +100,8 @@ function pagePreprocess() {
     $('#datepicker').attr('max', getDateString(new Date()))
     if (config.type === 'Count') {
         $('#historyCheckCount').css('display', 'block')
+    } else {
+        $('#historyCheckCount').css('display', 'none')
     }
     resetAllButton()
 }
