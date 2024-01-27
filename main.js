@@ -18,6 +18,11 @@ function createMainWindow() {
         // 同步通信必须要设置回复内容
         event.returnValue = writeJsonFile(data, fileUrl)
     })
+
+    ipcMain.on('readJsonFile', (event, fileUrl) => {
+        event.returnValue = readJsonFile(fileUrl)
+    })
+
     ipcMain.on('getHabitList', (event) => {
         event.returnValue = getHabitList()
     })
@@ -52,6 +57,17 @@ function writeJsonFile(data, fileUrl) {
         return err
     }
     return null
+}
+
+function readJsonFile(fileUrl) {
+    const dataPath = path.join(__dirname, fileUrl)
+    try {
+        const data = fs.readFileSync(dataPath, 'utf-8')
+        return JSON.parse(data)
+    } catch (err) {
+        console.error(err)
+        return err
+    }
 }
 
 function deleteFile(fileUrl) {

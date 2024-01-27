@@ -9,22 +9,14 @@ export function getRecordUrl(habit) {
     return recordPath + habit + '.json'
 }
 
-
 export function getJsonData(url) {
-    let data
-    $.ajax({
-        url: url,
-        dataType: 'json',
-        async: false,
-        success: function (jsonData) {
-            data = jsonData
-        },
-        error: function (request) {
-            console.log('getJsonData failed ' + 'url: ' + url)
-            console.log(request.status, request.responseText)
-        }
-    })
-    return data
+    const dataOrError = window.electronAPI.readJsonFile(url)
+    if (dataOrError instanceof Error) {
+        console.log('getJsonData failed ' + 'url: ' + url)
+        console.log('err: ', dataOrError)
+        return null
+    }
+    return dataOrError
 }
 
 export function getConfig(url) {
@@ -90,8 +82,7 @@ export function getMondayAndSunday(date) {
 // 生成UUID
 export function generateUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0,
-            v = c === 'x' ? r : (r & 0x3 | 0x8);
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
 }

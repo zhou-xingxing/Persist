@@ -97,7 +97,10 @@ function pagePreprocess() {
     const config = getConfig(configUrl)
     $('#dateRange').val(config.display.dateRangeType)
     $('#theme').val(config.display.theme)
-    $('#datepicker').attr('max', getDateString(new Date()))
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    $('#datepicker').attr('max', getDateString(yesterday))
     if (config.type === 'Count') {
         $('#historyCheckCount').css('display', 'block')
     } else {

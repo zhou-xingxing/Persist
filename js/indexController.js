@@ -1,4 +1,4 @@
-import {generateUUID, getConfigUrl, getRecordUrl} from "./common.js";
+import {generateUUID, getConfigUrl, getNowDate, getRecordUrl} from "./common.js";
 import {TEXT_CONTENT} from "./const.js";
 
 const DEFAULT_THEME = 'green'
@@ -138,14 +138,23 @@ $('#newHabitConfirm').click(function () {
         }
     }
     const configUrl = getConfigUrl(id)
-    const err = window.electronAPI.writeJsonFile(config, configUrl)
+    let err = window.electronAPI.writeJsonFile(config, configUrl)
     if (err != null) {
         console.log(err)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
-    } else {
-        alert('新习惯创建成功!')
-        $('#newHabitModal').modal('hide')
-        // 刷新习惯列表
-        loadHabitList()
+        return
     }
+    const nowDate = getNowDate()
+    const recordData = [[nowDate, 0]]
+    const recordUrl = getRecordUrl(id)
+    err = window.electronAPI.writeJsonFile(recordData, recordUrl)
+    if (err != null) {
+        console.log(err)
+        alert(TEXT_CONTENT.SYSTEM_ERROR)
+        return
+    }
+    alert('新习惯创建成功!')
+    $('#newHabitModal').modal('hide')
+    // 刷新习惯列表
+    loadHabitList()
 })
