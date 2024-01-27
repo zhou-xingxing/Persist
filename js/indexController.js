@@ -145,7 +145,7 @@ $('#newHabitConfirm').click(function () {
     const configUrl = getConfigUrl(id)
     let err = window.electronAPI.writeJsonFile(config, configUrl)
     if (err != null) {
-        console.log(err)
+        console.error(err)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }
@@ -154,7 +154,7 @@ $('#newHabitConfirm').click(function () {
     const recordUrl = getRecordUrl(id)
     err = window.electronAPI.writeJsonFile(recordData, recordUrl)
     if (err != null) {
-        console.log(err)
+        console.error(err)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }

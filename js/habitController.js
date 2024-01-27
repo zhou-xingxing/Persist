@@ -77,7 +77,7 @@ function initData() {
         recordData = [[nowDate, 0]]
         const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
         if (err != null) {
-            console.log(err)
+            console.error(err)
             alert(TEXT_CONTENT.SYSTEM_ERROR)
         }
     } else {
@@ -86,7 +86,7 @@ function initData() {
             recordData.push([nowDate, 0])
             const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
             if (err != null) {
-                console.log(err)
+                console.error(err)
                 alert(TEXT_CONTENT.SYSTEM_ERROR)
             }
         }
@@ -125,7 +125,7 @@ $('#checkIn').click(function () {
         recordData[recordData.length - 1][1] += 1
         const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
         if (err != null) {
-            console.log(err)
+            console.error(err)
             alert(TEXT_CONTENT.SYSTEM_ERROR)
             return
         }
@@ -140,7 +140,7 @@ $('#checkIn').click(function () {
         }
         const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
         if (err != null) {
-            console.log(err)
+            console.error(err)
             alert(TEXT_CONTENT.SYSTEM_ERROR)
             return
         }
@@ -160,7 +160,7 @@ $('#reset').click(function () {
     recordData[recordData.length - 1][1] = 0
     const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
     if (err != null) {
-        console.log(err)
+        console.error(err)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }
@@ -210,7 +210,7 @@ $('#historyCheckConfirm').click(function () {
     }
     const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
     if (err != null) {
-        console.log(err)
+        console.error(err)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }
@@ -226,7 +226,7 @@ $('#dateRange').change(function () {
     config.display.dateRangeType = selected
     const err = window.electronAPI.writeJsonFile(config, configUrl)
     if (err != null) {
-        console.log(err)
+        console.error(err)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }
@@ -239,7 +239,7 @@ $('#theme').change(function () {
     config.display.theme = selected
     const err = window.electronAPI.writeJsonFile(config, configUrl)
     if (err != null) {
-        console.log(err)
+        console.error(err)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }

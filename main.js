@@ -2,6 +2,18 @@ const {app, BrowserWindow, ipcMain} = require('electron/main')
 const path = require('node:path')
 const fs = require('fs')
 
+// 判断当前环境，修改dataDir路径
+const isDev = process.env.isDev;
+let dataDirPath
+if (isDev === 'true') {
+    dataDirPath = path.join(__dirname, 'data/')
+} else {
+    // 打包后data目录位于app.asar.unpacked下
+    const asarName = path.basename(__dirname)
+    const unpackedDir = path.join(path.join(__dirname, '..'), asarName+'.unpacked')
+    dataDirPath = path.join(unpackedDir, 'data/')
+}
+
 function createMainWindow() {
     let win = new BrowserWindow({
         width: 800,
@@ -48,10 +60,10 @@ function createMainWindow() {
 
 function writeJsonFile(data, fileUrl) {
     const dataStr = JSON.stringify(data)
-    const dataPath = path.join(__dirname, fileUrl)
+    const filePath = path.join(dataDirPath, fileUrl)
     try {
         // 同步写文件
-        fs.writeFileSync(dataPath, dataStr)
+        fs.writeFileSync(filePath, dataStr)
     } catch (err) {
         console.error(err)
         return err
@@ -60,9 +72,9 @@ function writeJsonFile(data, fileUrl) {
 }
 
 function readJsonFile(fileUrl) {
-    const dataPath = path.join(__dirname, fileUrl)
+    const filePath = path.join(dataDirPath, fileUrl)
     try {
-        const data = fs.readFileSync(dataPath, 'utf-8')
+        const data = fs.readFileSync(filePath, 'utf-8')
         return JSON.parse(data)
     } catch (err) {
         console.error(err)
@@ -71,9 +83,9 @@ function readJsonFile(fileUrl) {
 }
 
 function deleteFile(fileUrl) {
-    const dataPath = path.join(__dirname, fileUrl)
+    const filePath = path.join(dataDirPath, fileUrl)
     try {
-        fs.unlinkSync(dataPath)
+        fs.unlinkSync(filePath)
     } catch (err) {
         console.error(err)
         return err
@@ -82,8 +94,7 @@ function deleteFile(fileUrl) {
 }
 
 function getHabitList() {
-    const configFilePath = '/data/config'
-    const pwd = __dirname + configFilePath
+    const pwd = path.join(dataDirPath, 'config')
     const habitConfigList = []
     try {
         const files = fs.readdirSync(pwd)

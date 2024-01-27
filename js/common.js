@@ -1,5 +1,5 @@
-const configPath = 'data/config/'
-const recordPath = 'data/record/'
+const configPath = 'config/'
+const recordPath = 'record/'
 
 export function getConfigUrl(habit) {
     return configPath + habit + '.json'
