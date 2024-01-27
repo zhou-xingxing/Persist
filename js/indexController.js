@@ -46,21 +46,26 @@ function loadHabitList() {
         const habitID = $(this).val()
         window.electronAPI.openHabitWindow(habitID)
     })
+    // 监听删除按钮
     $('[name=deleteHabit]').click(function () {
-        const habitID = $(this).attr('value')
-        const configUrl = getConfigUrl(habitID)
-        const recordUrl = getRecordUrl(habitID)
-        let err = window.electronAPI.deleteFile(configUrl)
-        if (err != null) {
-            alert(TEXT_CONTENT.SYSTEM_ERROR)
-            console.error(`delete ${configUrl} failed, err: `, err)
-            return
+        // 使用 confirm 函数显示确认对话框
+        const isConfirmed = confirm('确认要删除吗？')
+        if (isConfirmed) {
+            const habitID = $(this).attr('value')
+            const configUrl = getConfigUrl(habitID)
+            const recordUrl = getRecordUrl(habitID)
+            let err = window.electronAPI.deleteFile(configUrl)
+            if (err != null) {
+                alert(TEXT_CONTENT.SYSTEM_ERROR)
+                console.error(`delete ${configUrl} failed, err: `, err)
+                return
+            }
+            err = window.electronAPI.deleteFile(recordUrl)
+            if (err != null) {
+                console.warn(`delete ${recordUrl} failed, err: `, err)
+            }
+            loadHabitList()
         }
-        err = window.electronAPI.deleteFile(recordUrl)
-        if (err != null) {
-            console.warn(`delete ${recordUrl} failed, err: `, err)
-        }
-        loadHabitList()
     })
 }
 
