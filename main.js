@@ -10,7 +10,7 @@ if (isDev === 'true') {
 } else {
     // 打包后data目录位于app.asar.unpacked下
     const asarName = path.basename(__dirname)
-    const unpackedDir = path.join(path.join(__dirname, '..'), asarName+'.unpacked')
+    const unpackedDir = path.join(path.join(__dirname, '..'), asarName + '.unpacked')
     dataDirPath = path.join(unpackedDir, 'data/')
 }
 
@@ -56,6 +56,10 @@ function createMainWindow() {
     ipcMain.on('deleteFile', (event, fileUrl) => {
         event.returnValue = deleteFile(fileUrl)
     })
+
+    ipcMain.on('softDeleteFile', (event, fileUrl) => {
+        event.returnValue = softDeleteFile(fileUrl)
+    })
 }
 
 function writeJsonFile(data, fileUrl) {
@@ -93,12 +97,29 @@ function deleteFile(fileUrl) {
     return null
 }
 
+function softDeleteFile(fileUrl) {
+    const filePath = path.join(dataDirPath, fileUrl)
+    const fileName = path.basename(fileUrl)
+    const renameFilePath = path.join(path.dirname(filePath), '.' + fileName)
+    try {
+        fs.renameSync(filePath, renameFilePath)
+    } catch (err) {
+        console.error(err)
+        return err
+    }
+    return null
+}
+
 function getHabitList() {
     const pwd = path.join(dataDirPath, 'config')
     const habitConfigList = []
     try {
         const files = fs.readdirSync(pwd)
         files.forEach(file => {
+            //如果是已删除文件则跳过
+            if (file.startsWith('.')) {
+                return
+            }
             const filePath = path.join(pwd, file)
             // 使用 fs.statSync 获取文件信息
             const stats = fs.statSync(filePath)

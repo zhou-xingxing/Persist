@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteFile: (fileUrl) => {
         return ipcRenderer.sendSync('deleteFile', fileUrl)
     },
+    softDeleteFile: (fileUrl) => {
+        return ipcRenderer.sendSync('softDeleteFile', fileUrl)
+    },
     readJsonFile: (fileUrl) => {
         return ipcRenderer.sendSync('readJsonFile', fileUrl)
     }

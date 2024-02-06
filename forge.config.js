@@ -6,7 +6,7 @@ module.exports = {
             // 指定目录不打包进asar
             unpackDir: 'data',
         },
-        // 必须是.icns格式
+        // macos必须是.icns格式
         icon: 'dependencies/Persist.icns',
     },
     rebuildConfig: {},
@@ -34,6 +34,5 @@ module.exports = {
             config: {},
         },
     ],
-    hooks: {
-    }
+    hooks: {}
 };

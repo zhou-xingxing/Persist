@@ -54,13 +54,13 @@ function loadHabitList() {
             const habitID = $(this).attr('value')
             const configUrl = getConfigUrl(habitID)
             const recordUrl = getRecordUrl(habitID)
-            let err = window.electronAPI.deleteFile(configUrl)
+            let err = window.electronAPI.softDeleteFile(configUrl)
             if (err != null) {
                 alert(TEXT_CONTENT.SYSTEM_ERROR)
                 console.error(`delete ${configUrl} failed, err: `, err)
                 return
             }
-            err = window.electronAPI.deleteFile(recordUrl)
+            err = window.electronAPI.softDeleteFile(recordUrl)
             if (err != null) {
                 console.warn(`delete ${recordUrl} failed, err: `, err)
             }
