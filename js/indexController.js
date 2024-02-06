@@ -49,7 +49,7 @@ function loadHabitList() {
     // 监听删除按钮
     $('[name=deleteHabit]').click(function () {
         // 使用 confirm 函数显示确认对话框
-        const isConfirmed = confirm('确认要删除吗？')
+        const isConfirmed = confirm('确认要删除吗？\n 后续你可以在回收站内找回')
         if (isConfirmed) {
             const habitID = $(this).attr('value')
             const configUrl = getConfigUrl(habitID)
@@ -163,3 +163,51 @@ $('#newHabitConfirm').click(function () {
     // 刷新习惯列表
     loadHabitList()
 })
+
+$('#openTrashButton').click(function () {
+        $('#deletedHabitListBody').empty()
+        const deletedHabitListOrErr = window.electronAPI.getDeletedHabitList()
+        if (deletedHabitListOrErr instanceof Error) {
+            console.error("get deleted habit list error: ", deletedHabitListOrErr)
+            return
+        }
+        deletedHabitListOrErr.sort(function (a, b) {
+            return b.createTime - a.createTime
+        })
+        deletedHabitListOrErr.forEach(config => {
+            const cardHTML = `
+            <div class="card" style="margin:0 15px 30px 15px">
+            <div class="card-body">
+                <h5 class="card-title">${config.title}</h5>
+                <p class="card-text">${config.description}</p>
+                <button class="btn btn-outline-primary float-end" name="restoreDeletedHabit" value="${config.id}">还原</button>
+            </div>
+        </div>
+        `
+            $('#deletedHabitListBody').append(cardHTML)
+        })
+        $('[name=restoreDeletedHabit]').click(function () {
+            const isConfirmed = confirm('确定要还原吗？')
+            if (!isConfirmed) {
+                return
+            }
+            const deletedHabitId = $(this).val()
+            const configUrl = getConfigUrl('.' + deletedHabitId)
+            const recordUrl = getRecordUrl('.' + deletedHabitId)
+            let err = window.electronAPI.restoreDeletedFile(configUrl)
+            if (err != null) {
+                console.error("restore deleted config file error: ", err)
+                alert(TEXT_CONTENT.SYSTEM_ERROR)
+                return
+            }
+            err = window.electronAPI.restoreDeletedFile(recordUrl)
+            if (err != null) {
+                console.error("restore deleted record file error: ", err)
+                alert(TEXT_CONTENT.SYSTEM_ERROR)
+                return
+            }
+            $(this).parent().parent().remove()
+            loadHabitList()
+        })
+    }
+)

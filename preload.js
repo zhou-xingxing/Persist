@@ -22,5 +22,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     readJsonFile: (fileUrl) => {
         return ipcRenderer.sendSync('readJsonFile', fileUrl)
+    },
+    getDeletedHabitList: () => {
+        return ipcRenderer.sendSync('getDeletedHabitList')
+    },
+    restoreDeletedFile: (fileUrl) => {
+        return ipcRenderer.sendSync('restoreDeletedFile', fileUrl)
     }
 })

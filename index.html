@@ -16,6 +16,9 @@
         <h1>习惯列表</h1>
     </div>
     <div class="text-end" style="margin: 15px auto">
+        <button id="openTrashButton" class="btn btn-outline-danger" style="margin: 0 10px" data-bs-toggle="offcanvas"
+                data-bs-target="#deletedHabitList">回收站
+        </button>
         <button id="newHabitButton" class="btn btn-outline-success" data-bs-toggle="modal"
                 data-bs-target="#newHabitModal">新建习惯
         </button>
@@ -81,6 +84,18 @@
                 <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">关闭</button>
             </div>
         </div>
+    </div>
+</div>
+
+<!--侧边栏：已删除习惯列表-->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="deletedHabitList">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">已删除习惯</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="deletedHabitListBody">
+        <!--        动态填充-->
     </div>
 </div>
 

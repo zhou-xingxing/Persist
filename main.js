@@ -60,6 +60,14 @@ function createMainWindow() {
     ipcMain.on('softDeleteFile', (event, fileUrl) => {
         event.returnValue = softDeleteFile(fileUrl)
     })
+
+    ipcMain.on('getDeletedHabitList', (event) => {
+        event.returnValue = getDeletedHabitList()
+    })
+
+    ipcMain.on('restoreDeletedFile', (event, fileUrl) => {
+        event.returnValue = restoreDeletedFile(fileUrl)
+    })
 }
 
 function writeJsonFile(data, fileUrl) {
@@ -110,26 +118,42 @@ function softDeleteFile(fileUrl) {
     return null
 }
 
-function getHabitList() {
+function isDeletedFile(fileName) {
+    return fileName.startsWith('.')
+}
+
+// isDeleted为true时获取已删除的文件列表
+function getHabitList(isDeleted = false) {
     const pwd = path.join(dataDirPath, 'config')
     const habitConfigList = []
     try {
         const files = fs.readdirSync(pwd)
         files.forEach(file => {
-            //如果是已删除文件则跳过
-            if (file.startsWith('.')) {
-                return
-            }
             const filePath = path.join(pwd, file)
             // 使用 fs.statSync 获取文件信息
             const stats = fs.statSync(filePath)
-            if (stats.isFile()) {
-                try {
-                    const jsonData = fs.readFileSync(filePath, 'utf-8');
-                    const jsonObject = JSON.parse(jsonData);
-                    habitConfigList.push(jsonObject)
-                } catch (jsonErr) {
-                    console.error(`Error parsing JSON file ${file}:`, jsonErr);
+            if (!stats.isFile()) {
+                return
+            }
+            if (isDeleted) {
+                if (isDeletedFile(file)) {
+                    try {
+                        const jsonData = fs.readFileSync(filePath, 'utf-8');
+                        const jsonObject = JSON.parse(jsonData);
+                        habitConfigList.push(jsonObject)
+                    } catch (jsonErr) {
+                        console.error(`Error parsing JSON file ${file}:`, jsonErr);
+                    }
+                }
+            } else {
+                if (!isDeletedFile(file)) {
+                    try {
+                        const jsonData = fs.readFileSync(filePath, 'utf-8');
+                        const jsonObject = JSON.parse(jsonData);
+                        habitConfigList.push(jsonObject)
+                    } catch (jsonErr) {
+                        console.error(`Error parsing JSON file ${file}:`, jsonErr);
+                    }
                 }
             }
         })
@@ -139,6 +163,23 @@ function getHabitList() {
     }
 
     return habitConfigList
+}
+
+function getDeletedHabitList() {
+    return getHabitList(true)
+}
+
+function restoreDeletedFile(fileUrl) {
+    const filePath = path.join(dataDirPath, fileUrl)
+    const newFileName = path.basename(fileUrl).replace(/^\./, '')
+    const renameFilePath = path.join(path.dirname(filePath), newFileName)
+    try {
+        fs.renameSync(filePath, renameFilePath)
+    } catch (err) {
+        console.error(err)
+        return err
+    }
+    return null
 }
 
 app.whenReady().then(() => {
