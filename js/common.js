@@ -49,3 +49,45 @@ export function generateUUID() {
         return v.toString(16);
     });
 }
+
+// 比较日期字符串的大小
+export function compareDateStr(dateStr1, dateStr2) {
+    const date1 = new Date(dateStr1)
+    const date2 = new Date(dateStr2)
+    // 返回正数表示date1大于date2，返回0表示date1等于date2，返回负数表示date1小于date2
+    return date1.getTime() - date2.getTime()
+}
+
+// 在给定的日期数组中二分查找记录的位置
+export function binSearchRecord(recordArray, dateStr) {
+    let low = 0
+    let high = recordArray.length - 1
+    while (low <= high) {
+        const mid = Math.floor((low + high) / 2)
+        if (compareDateStr(recordArray[mid][0], dateStr) === 0) {
+            return mid
+        } else if (compareDateStr(recordArray[mid][0], dateStr) < 0) {
+            low = mid + 1
+        } else {
+            high = mid - 1
+        }
+    }
+    return -1
+}
+
+// 在给定的日期数组中二分查找插入记录的位置
+export function binSearchInsertRecord(recordArray, dateStr) {
+    let low = 0
+    let high = recordArray.length - 1
+    while (low <= high) {
+        const mid = Math.floor((low + high) / 2)
+        if (compareDateStr(recordArray[mid][0], dateStr) === 0) {
+            return mid
+        } else if (compareDateStr(recordArray[mid][0], dateStr) < 0) {
+            low = mid + 1
+        } else {
+            high = mid - 1
+        }
+    }
+    return low
+}

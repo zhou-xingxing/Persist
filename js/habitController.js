@@ -1,5 +1,5 @@
 import {drawHeatMap} from './heatmap.js'
-import {getDateString, getNowDate} from './common.js'
+import {binSearchInsertRecord, binSearchRecord, getDateString, getNowDate} from './common.js'
 import {TEXT_CONTENT} from "./const.js";
 
 
@@ -147,7 +147,6 @@ $('#checkIn').click(function () {
 
 $('#reset').click(function () {
     // 这里要读最新的
-    const config = window.electronAPI.getHabitConfig(habit)
     let recordData = window.electronAPI.getHabitRecord(habit)
     if (recordData[recordData.length - 1][1] === 0) {
         alert('不需要再重置了哦~')
@@ -186,21 +185,16 @@ $('#historyCheckConfirm').click(function () {
             return
         }
     }
-
-    let flag = false
-    for (let i = recordData.length - 1; i >= 0; i--) {
-        if (recordData[i][0] === selectDateStr) {
-            flag = true
-            if (config.type === 'CheckIn' && recordData[i][1] > 0) {
-                alert('这一天已经打过卡了呦~')
-                return
-            }
-            recordData[i][1] += count
-            break
+    let pos = binSearchRecord(recordData, selectDateStr)
+    if (pos === -1) {
+        let pos = binSearchInsertRecord(recordData, selectDateStr)
+        recordData.splice(pos, 0, [selectDateStr, count])
+    } else {
+        if (config.type === 'CheckIn' && recordData[pos][1] > 0) {
+            alert('这一天已经打过卡了呦~')
+            return
         }
-    }
-    if (flag === false) {
-        recordData.unshift([selectDateStr, count])
+        recordData[pos][1] += count
     }
     const success = window.electronAPI.setHabitRecord(habit, recordData)
     if (!success) {
