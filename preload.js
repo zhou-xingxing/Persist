@@ -1,32 +1,41 @@
 const {contextBridge, ipcRenderer} = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    writeJsonFile: (data, fileUrl) => {
-        // 同步通信，必须要在主进程里设置回复
-        return ipcRenderer.sendSync('writeJsonFile', data, fileUrl)
-    },
-    getHabitList: () => {
-        return ipcRenderer.sendSync('getHabitList')
-    },
     openHabitWindow: (habitID) => {
         ipcRenderer.send('openHabitWindow', habitID)
     },
     openIndexWindow: () => {
         ipcRenderer.send('openIndexWindow')
     },
-    deleteFile: (fileUrl) => {
-        return ipcRenderer.sendSync('deleteFile', fileUrl)
+
+
+    getHabitConfig: (habitID) => {
+        return ipcRenderer.sendSync('getHabitConfig', habitID)
     },
-    softDeleteFile: (fileUrl) => {
-        return ipcRenderer.sendSync('softDeleteFile', fileUrl)
+    getHabitRecord: (habitID) => {
+        return ipcRenderer.sendSync('getHabitRecord', habitID)
     },
-    readJsonFile: (fileUrl) => {
-        return ipcRenderer.sendSync('readJsonFile', fileUrl)
+    setHabitConfig: (habitID, config) => {
+        return ipcRenderer.sendSync('setHabitConfig', habitID, config)
+    },
+    setHabitRecord: (habitID, record) => {
+        return ipcRenderer.sendSync('setHabitRecord', habitID, record)
+    },
+    deleteHabit: (habitID) => {
+        return ipcRenderer.sendSync('deleteHabit', habitID)
+    },
+    restoreDeletedHabit: (habitID) => {
+        return ipcRenderer.sendSync('restoreDeletedHabit', habitID)
+    },
+    createHabit: (habitID, config, record) => {
+        return ipcRenderer.sendSync('createHabit', habitID, config, record)
+    },
+
+
+    getHabitList: () => {
+        return ipcRenderer.sendSync('getHabitList')
     },
     getDeletedHabitList: () => {
         return ipcRenderer.sendSync('getDeletedHabitList')
-    },
-    restoreDeletedFile: (fileUrl) => {
-        return ipcRenderer.sendSync('restoreDeletedFile', fileUrl)
     }
 })

@@ -1,17 +1,17 @@
-import {getConfig, getConfigUrl, getDateString, getMondayAndSunday, getRecordData, getRecordUrl} from './common.js'
+import {getDateString, getMondayAndSunday} from './common.js'
 import {ENUM_DATE_RANGE, THEME_MAP, THEME_RGB_MAP} from './const.js'
 
 let myChart
 
 export function drawHeatMap(habit) {
-    const recordData = getRecordData(getRecordUrl(habit))
+    const recordData = window.electronAPI.getHabitRecord(habit)
     if (recordData == null) {
-        console.log('draw from recordData==null, habit: ', habit)
+        console.warn('draw from recordData==null, habit: ', habit)
         return
     }
-    const config = getConfig(getConfigUrl(habit))
+    const config = window.electronAPI.getHabitConfig(habit)
     if (config == null) {
-        console.log('draw from config==null, habit: ', habit)
+        console.warn('draw from config==null, habit: ', habit)
         return
     }
     const option = buildOption(recordData, config)

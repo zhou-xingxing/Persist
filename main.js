@@ -1,6 +1,7 @@
 const {app, BrowserWindow, ipcMain} = require('electron/main')
 const path = require('node:path')
 const fs = require('fs')
+const log = require('electron-log')
 
 // 判断当前环境，修改dataDir路径
 const isDev = process.env.isDev;
@@ -13,6 +14,19 @@ if (isDev === 'true') {
     const unpackedDir = path.join(path.join(__dirname, '..'), asarName + '.unpacked')
     dataDirPath = path.join(unpackedDir, 'data/')
 }
+const configDirPath = path.join(dataDirPath, 'config/')
+const recordDirPath = path.join(dataDirPath, 'record/')
+const logDirPath = path.join(dataDirPath, 'log/')
+
+
+// 配置日志文件位置
+// https://github.com/megahertz/electron-log/blob/master/docs/transports/file.md
+log.transports.file.resolvePathFn = () => path.join(logDirPath, 'log')
+log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
+log.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
+log.transports.console.useStyles = true
+
+log.info('========== Persist app start ==========')
 
 function createMainWindow() {
     let win = new BrowserWindow({
@@ -26,13 +40,21 @@ function createMainWindow() {
 
     win.loadFile('index.html').then()
 
-    ipcMain.on('writeJsonFile', (event, data, fileUrl) => {
+    ipcMain.on('getHabitConfig', (event, habitID) => {
         // 同步通信必须要设置回复内容
-        event.returnValue = writeJsonFile(data, fileUrl)
+        event.returnValue = getHabitConfig(habitID)
     })
 
-    ipcMain.on('readJsonFile', (event, fileUrl) => {
-        event.returnValue = readJsonFile(fileUrl)
+    ipcMain.on('setHabitConfig', (event, habitID, config) => {
+        event.returnValue = setHabitConfig(habitID, config)
+    })
+
+    ipcMain.on('getHabitRecord', (event, habitID) => {
+        event.returnValue = getHabitRecord(habitID)
+    })
+
+    ipcMain.on('setHabitRecord', (event, habitID, record) => {
+        event.returnValue = setHabitRecord(habitID, record)
     })
 
     ipcMain.on('getHabitList', (event) => {
@@ -41,7 +63,6 @@ function createMainWindow() {
 
     // https://stackoverflow.com/questions/63827841/receive-data-sent-from-loadfile-to-html-page-in-electron
     ipcMain.on('openHabitWindow', (event, habitID) => {
-        // createMainWindow(habitID)
         win.loadFile('habit.html', {
             query: {
                 'habit': habitID
@@ -53,14 +74,6 @@ function createMainWindow() {
         win.loadFile('index.html').then()
     })
 
-    ipcMain.on('deleteFile', (event, fileUrl) => {
-        event.returnValue = deleteFile(fileUrl)
-    })
-
-    ipcMain.on('softDeleteFile', (event, fileUrl) => {
-        event.returnValue = softDeleteFile(fileUrl)
-    })
-
     ipcMain.on('getDeletedHabitList', (event) => {
         event.returnValue = getDeletedHabitList()
     })
@@ -68,58 +81,88 @@ function createMainWindow() {
     ipcMain.on('restoreDeletedFile', (event, fileUrl) => {
         event.returnValue = restoreDeletedFile(fileUrl)
     })
+
+    ipcMain.on('deleteHabit', (event, habitID) => {
+        event.returnValue = deleteHabit(habitID)
+    })
+
+    ipcMain.on('restoreDeletedHabit', (event, habitID) => {
+        event.returnValue = restoreDeletedHabit(habitID)
+    })
+
+    ipcMain.on('createHabit', (event, habitID, config, record) => {
+        event.returnValue = createHabit(habitID, config, record)
+    })
 }
 
-function writeJsonFile(data, fileUrl) {
-    const dataStr = JSON.stringify(data)
-    const filePath = path.join(dataDirPath, fileUrl)
-    try {
-        // 同步写文件
-        fs.writeFileSync(filePath, dataStr)
-    } catch (err) {
-        console.error(err)
-        return err
-    }
-    return null
+function getHabitConfig(habitID) {
+    const filePath = path.join(configDirPath, habitID + '.json')
+    return readJsonFile(filePath)
 }
 
-function readJsonFile(fileUrl) {
-    const filePath = path.join(dataDirPath, fileUrl)
+function setHabitConfig(habitID, config) {
+    const filePath = path.join(configDirPath, habitID + '.json')
+    return writeJsonFile(config, filePath)
+}
+
+function getHabitRecord(habitID) {
+    const filePath = path.join(recordDirPath, habitID + '.json')
+    return readJsonFile(filePath)
+}
+
+function setHabitRecord(habitID, record) {
+    const filePath = path.join(recordDirPath, habitID + '.json')
+    return writeJsonFile(record, filePath)
+}
+
+function readJsonFile(filePath) {
     try {
         const data = fs.readFileSync(filePath, 'utf-8')
         return JSON.parse(data)
     } catch (err) {
-        console.error(err)
-        return err
+        log.error(err)
+        return null
     }
 }
 
-function deleteFile(fileUrl) {
-    const filePath = path.join(dataDirPath, fileUrl)
+function writeJsonFile(data, filePath) {
+    const dataStr = JSON.stringify(data)
     try {
-        fs.unlinkSync(filePath)
+        // 同步写文件
+        fs.writeFileSync(filePath, dataStr)
     } catch (err) {
-        console.error(err)
-        return err
+        log.error(err)
+        return false
     }
-    return null
+    return true
 }
 
-function softDeleteFile(fileUrl) {
-    const filePath = path.join(dataDirPath, fileUrl)
-    const fileName = path.basename(fileUrl)
+function softDeleteFile(filePath) {
+    const fileName = path.basename(filePath)
     const renameFilePath = path.join(path.dirname(filePath), '.' + fileName)
     try {
         fs.renameSync(filePath, renameFilePath)
     } catch (err) {
-        console.error(err)
-        return err
+        log.error(err)
+        return false
     }
-    return null
+    return true
 }
 
 function isDeletedFile(fileName) {
     return fileName.startsWith('.')
+}
+
+function deleteHabit(habitId) {
+    const configPath = path.join(configDirPath, habitId + '.json')
+    const recordPath = path.join(recordDirPath, habitId + '.json')
+    return softDeleteFile(configPath) && softDeleteFile(recordPath)
+}
+
+function restoreDeletedHabit(habitId) {
+    const configPath = path.join(configDirPath, '.' + habitId + '.json')
+    const recordPath = path.join(recordDirPath, '.' + habitId + '.json')
+    return restoreDeletedFile(configPath) && restoreDeletedFile(recordPath)
 }
 
 // isDeleted为true时获取已删除的文件列表
@@ -142,7 +185,7 @@ function getHabitList(isDeleted = false) {
                         const jsonObject = JSON.parse(jsonData);
                         habitConfigList.push(jsonObject)
                     } catch (jsonErr) {
-                        console.error(`Error parsing JSON file ${file}:`, jsonErr);
+                        log.error(`Error parsing JSON file ${file}:`, jsonErr);
                     }
                 }
             } else {
@@ -152,13 +195,13 @@ function getHabitList(isDeleted = false) {
                         const jsonObject = JSON.parse(jsonData);
                         habitConfigList.push(jsonObject)
                     } catch (jsonErr) {
-                        console.error(`Error parsing JSON file ${file}:`, jsonErr);
+                        log.error(`Error parsing JSON file ${file}:`, jsonErr);
                     }
                 }
             }
         })
     } catch (err) {
-        console.error('Error reading directory:', err)
+        log.error('Error reading directory:', err)
         return err
     }
 
@@ -169,17 +212,30 @@ function getDeletedHabitList() {
     return getHabitList(true)
 }
 
-function restoreDeletedFile(fileUrl) {
-    const filePath = path.join(dataDirPath, fileUrl)
-    const newFileName = path.basename(fileUrl).replace(/^\./, '')
+function restoreDeletedFile(filePath) {
+    const newFileName = path.basename(filePath).replace(/^\./, '')
     const renameFilePath = path.join(path.dirname(filePath), newFileName)
     try {
         fs.renameSync(filePath, renameFilePath)
     } catch (err) {
-        console.error(err)
-        return err
+        log.error(err)
+        return false
     }
-    return null
+    return true
+}
+
+function createHabit(habitID, config, record) {
+    let success = setHabitConfig(habitID, config)
+    if (!success) {
+        log.error('setHabitConfig failed, habitID: ', habitID)
+        return false
+    }
+    success = setHabitRecord(habitID, record)
+    if (!success) {
+        log.error('setHabitRecord failed, habitID: ', habitID)
+        return false
+    }
+    return true
 }
 
 app.whenReady().then(() => {
@@ -192,8 +248,5 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-//   if (process.platform !== 'darwin') {
-//     app.quit()
-//   }
-    app.exit()
+    app.quit()
 })

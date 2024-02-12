@@ -1,11 +1,9 @@
 import {drawHeatMap} from './heatmap.js'
-import {getConfig, getConfigUrl, getDateString, getNowDate, getRecordData, getRecordUrl,} from './common.js'
+import {getDateString, getNowDate} from './common.js'
 import {TEXT_CONTENT} from "./const.js";
 
 
 let habit = null
-let configUrl = null
-let recordUrl = null
 
 
 $(document).ready(function () {
@@ -58,35 +56,33 @@ function getInitHabit() {
 
 function toggleHabit(newHabit) {
     habit = newHabit
-    configUrl = getConfigUrl(habit)
-    recordUrl = getRecordUrl(habit)
 }
 
 function loadContent() {
-    initData()
+    loadData()
     pagePreprocess()
     drawHeatMap(habit)
 }
 
 
-function initData() {
+function loadData() {
     const nowDate = getNowDate()
-    let recordData = getRecordData(recordUrl)
+    let recordData = window.electronAPI.getHabitRecord(habit)
     // 数据为空则新建打卡记录文件
     if (recordData == null) {
         recordData = [[nowDate, 0]]
-        const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
-        if (err != null) {
-            console.error(err)
+        const success = window.electronAPI.setHabitRecord(habit, recordData)
+        if (!success) {
+            console.error('setHabitRecord failed, habitID: ', habit)
             alert(TEXT_CONTENT.SYSTEM_ERROR)
         }
     } else {
         // 检查是否有今日数据
         if (recordData[recordData.length - 1][0] !== nowDate) {
             recordData.push([nowDate, 0])
-            const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
-            if (err != null) {
-                console.error(err)
+            const success = window.electronAPI.setHabitRecord(habit, recordData)
+            if (!success) {
+                console.error('setHabitRecord failed, habitID: ', habit)
                 alert(TEXT_CONTENT.SYSTEM_ERROR)
             }
         }
@@ -94,7 +90,7 @@ function initData() {
 }
 
 function pagePreprocess() {
-    const config = getConfig(configUrl)
+    const config = window.electronAPI.getHabitConfig(habit)
     $('#dateRange').val(config.display.dateRangeType)
     $('#theme').val(config.display.theme)
     const today = new Date();
@@ -118,14 +114,14 @@ function resetAllButton() {
 
 $('#checkIn').click(function () {
     // 这里要读最新的
-    const config = getConfig(configUrl)
-    let recordData = getRecordData(recordUrl)
+    const config = window.electronAPI.getHabitConfig(habit)
+    let recordData = window.electronAPI.getHabitRecord(habit)
     if (config.type === 'Count') {
         // 计数型打卡
         recordData[recordData.length - 1][1] += 1
-        const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
-        if (err != null) {
-            console.error(err)
+        const success = window.electronAPI.setHabitRecord(habit, recordData)
+        if (!success) {
+            console.error('setHabitRecord failed, habitID: ', habit)
             alert(TEXT_CONTENT.SYSTEM_ERROR)
             return
         }
@@ -138,9 +134,9 @@ $('#checkIn').click(function () {
             alert('今天已经打过卡啦~')
             return
         }
-        const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
-        if (err != null) {
-            console.error(err)
+        const success = window.electronAPI.setHabitRecord(habit, recordData)
+        if (!success) {
+            console.error('setHabitRecord failed, habitID: ', habit)
             alert(TEXT_CONTENT.SYSTEM_ERROR)
             return
         }
@@ -151,24 +147,22 @@ $('#checkIn').click(function () {
 
 $('#reset').click(function () {
     // 这里要读最新的
-    const config = getConfig(configUrl)
-    let recordData = getRecordData(recordUrl)
+    const config = window.electronAPI.getHabitConfig(habit)
+    let recordData = window.electronAPI.getHabitRecord(habit)
     if (recordData[recordData.length - 1][1] === 0) {
         alert('不需要再重置了哦~')
         return
     }
     recordData[recordData.length - 1][1] = 0
-    const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
-    if (err != null) {
-        console.error(err)
+    const success = window.electronAPI.setHabitRecord(habit, recordData)
+    if (!success) {
+        console.error('setHabitRecord failed, habitID: ', habit)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }
     drawHeatMap(habit)
     $(this).text('重置成功')
-    if (config.type === 'Count') {
-        $('#checkIn').text('今日打卡')
-    }
+    $('#checkIn').text('今日打卡')
 })
 
 $('#historyCheck').click(function () {
@@ -182,8 +176,8 @@ $('#historyCheckConfirm').click(function () {
         alert('请选择一个日期~')
         return
     }
-    const config = getConfig(configUrl)
-    let recordData = getRecordData(recordUrl)
+    const config = window.electronAPI.getHabitConfig(habit)
+    let recordData = window.electronAPI.getHabitRecord(habit)
     let count = 1
     if (config.type === 'Count') {
         count = Number($('#historyCheckCountInput').val())
@@ -208,9 +202,9 @@ $('#historyCheckConfirm').click(function () {
     if (flag === false) {
         recordData.unshift([selectDateStr, count])
     }
-    const err = window.electronAPI.writeJsonFile(recordData, recordUrl)
-    if (err != null) {
-        console.error(err)
+    const success = window.electronAPI.setHabitRecord(habit, recordData)
+    if (!success) {
+        console.error('setHabitRecord failed, habitID: ', habit)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }
@@ -222,11 +216,11 @@ $('#historyCheckConfirm').click(function () {
 
 $('#dateRange').change(function () {
     const selected = $(this).val()
-    let config = getConfig(configUrl)
+    let config = window.electronAPI.getHabitConfig(habit)
     config.display.dateRangeType = selected
-    const err = window.electronAPI.writeJsonFile(config, configUrl)
-    if (err != null) {
-        console.error(err)
+    const success = window.electronAPI.setHabitConfig(habit, config)
+    if (!success) {
+        console.error('setHabitConfig failed, habitID: ', habit)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }
@@ -235,11 +229,11 @@ $('#dateRange').change(function () {
 
 $('#theme').change(function () {
     const selected = $(this).val()
-    let config = getConfig(configUrl)
+    let config = window.electronAPI.getHabitConfig(habit)
     config.display.theme = selected
-    const err = window.electronAPI.writeJsonFile(config, configUrl)
-    if (err != null) {
-        console.error(err)
+    const success = window.electronAPI.setHabitConfig(habit, config)
+    if (!success) {
+        console.error('setHabitConfig failed, habitID: ', habit)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }

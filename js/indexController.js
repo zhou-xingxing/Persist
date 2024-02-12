@@ -1,4 +1,4 @@
-import {generateUUID, getConfigUrl, getNowDate, getRecordUrl} from "./common.js";
+import {generateUUID, getNowDate} from "./common.js";
 import {TEXT_CONTENT} from "./const.js";
 
 const DEFAULT_THEME = 'green'
@@ -49,20 +49,14 @@ function loadHabitList() {
     // 监听删除按钮
     $('[name=deleteHabit]').click(function () {
         // 使用 confirm 函数显示确认对话框
-        const isConfirmed = confirm('确认要删除吗？\n 后续你可以在回收站内找回')
+        const isConfirmed = confirm('确认要删除吗？\n 后续可以在回收站中找回')
         if (isConfirmed) {
             const habitID = $(this).attr('value')
-            const configUrl = getConfigUrl(habitID)
-            const recordUrl = getRecordUrl(habitID)
-            let err = window.electronAPI.softDeleteFile(configUrl)
-            if (err != null) {
+            const success = window.electronAPI.deleteHabit(habitID)
+            if (!success) {
+                console.error('delete habit failed, habitID:', habitID)
                 alert(TEXT_CONTENT.SYSTEM_ERROR)
-                console.error(`delete ${configUrl} failed, err: `, err)
                 return
-            }
-            err = window.electronAPI.softDeleteFile(recordUrl)
-            if (err != null) {
-                console.warn(`delete ${recordUrl} failed, err: `, err)
             }
             loadHabitList()
         }
@@ -109,7 +103,6 @@ $('#newHabitConfirm').click(function () {
         }
     }
     const description = $('#newHabitDescription').val()
-
     const id = generateUUID()
     const createTime = new Date().getTime() / 1000
     let config
@@ -142,19 +135,12 @@ $('#newHabitConfirm').click(function () {
             }
         }
     }
-    const configUrl = getConfigUrl(id)
-    let err = window.electronAPI.writeJsonFile(config, configUrl)
-    if (err != null) {
-        console.error(err)
-        alert(TEXT_CONTENT.SYSTEM_ERROR)
-        return
-    }
+
     const nowDate = getNowDate()
     const recordData = [[nowDate, 0]]
-    const recordUrl = getRecordUrl(id)
-    err = window.electronAPI.writeJsonFile(recordData, recordUrl)
-    if (err != null) {
-        console.error(err)
+    const success = window.electronAPI.createHabit(id, config, recordData)
+    if (!success) {
+        console.error('create habit failed, habitID: ', id)
         alert(TEXT_CONTENT.SYSTEM_ERROR)
         return
     }
@@ -180,29 +166,21 @@ $('#openTrashButton').click(function () {
             <div class="card-body">
                 <h5 class="card-title">${config.title}</h5>
                 <p class="card-text">${config.description}</p>
-                <button class="btn btn-outline-primary float-end" name="restoreDeletedHabit" value="${config.id}">还原</button>
+                <button class="btn btn-outline-primary float-end" name="restoreDeletedHabit" value="${config.id}">恢复</button>
             </div>
         </div>
         `
             $('#deletedHabitListBody').append(cardHTML)
         })
         $('[name=restoreDeletedHabit]').click(function () {
-            const isConfirmed = confirm('确定要还原吗？')
+            const isConfirmed = confirm('确定要恢复吗？')
             if (!isConfirmed) {
                 return
             }
             const deletedHabitId = $(this).val()
-            const configUrl = getConfigUrl('.' + deletedHabitId)
-            const recordUrl = getRecordUrl('.' + deletedHabitId)
-            let err = window.electronAPI.restoreDeletedFile(configUrl)
-            if (err != null) {
-                console.error("restore deleted config file error: ", err)
-                alert(TEXT_CONTENT.SYSTEM_ERROR)
-                return
-            }
-            err = window.electronAPI.restoreDeletedFile(recordUrl)
-            if (err != null) {
-                console.error("restore deleted record file error: ", err)
+            const success = window.electronAPI.restoreDeletedHabit(deletedHabitId)
+            if (!success) {
+                console.error("restore deleted habit failed, habitID: ", deletedHabitId)
                 alert(TEXT_CONTENT.SYSTEM_ERROR)
                 return
             }
