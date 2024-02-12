@@ -37,5 +37,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     getDeletedHabitList: () => {
         return ipcRenderer.sendSync('getDeletedHabitList')
+    },
+
+    exportData: () => {
+        return ipcRenderer.sendSync('exportData')
     }
 })

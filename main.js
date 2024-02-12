@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain} = require('electron/main')
+const {app, BrowserWindow, ipcMain, dialog} = require('electron/main')
 const path = require('node:path')
 const fs = require('fs')
 const log = require('electron-log')
@@ -72,6 +72,10 @@ function createMainWindow() {
 
     ipcMain.on('openIndexWindow', (event) => {
         win.loadFile('index.html').then()
+    })
+
+    ipcMain.on('exportData', (event) => {
+        event.returnValue = exportData(win)
     })
 
     ipcMain.on('getDeletedHabitList', (event) => {
@@ -238,6 +242,41 @@ function createHabit(habitID, config, record) {
     return true
 }
 
+function exportData(window) {
+    const options = {
+        title: '选择导出文件位置',
+        defaultPath: '~/Downloads/Persist_Backup',
+        filters: [
+            {name: '所有文件', extensions: ['*']}
+        ]
+    }
+    try {
+        const userSelectedPath = dialog.showSaveDialogSync(window, options)
+        if (userSelectedPath) {
+            if (!fs.existsSync(userSelectedPath)) {
+                fs.mkdirSync(path.join(userSelectedPath, 'config/'), {recursive: true})
+                fs.mkdirSync(path.join(userSelectedPath, 'record/'), {recursive: true})
+            }
+            // 遍历复制所有文件
+            const configFiles = fs.readdirSync(configDirPath)
+            configFiles.forEach((file) => {
+                fs.copyFileSync(path.join(configDirPath, file), path.join(userSelectedPath, 'config/', file))
+            })
+            const recordFiles = fs.readdirSync(recordDirPath)
+            recordFiles.forEach((file) => {
+                fs.copyFileSync(path.join(recordDirPath, file), path.join(userSelectedPath, 'record/', file))
+            })
+            log.info('导出文件成功：', userSelectedPath)
+        } else {
+            log.info('用户取消导出文件')
+        }
+        return true
+    } catch (err) {
+        log.error('导出文件失败, error: ', err)
+        return false
+    }
+}
+
 app.whenReady().then(() => {
     createMainWindow()
     app.on('activate', () => {
@@ -248,5 +287,6 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+    log.info('========== Persist app quit ==========')
     app.quit()
 })

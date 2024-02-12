@@ -151,17 +151,17 @@ $('#newHabitConfirm').click(function () {
 })
 
 $('#openTrashButton').click(function () {
-        $('#deletedHabitListBody').empty()
-        const deletedHabitListOrErr = window.electronAPI.getDeletedHabitList()
-        if (deletedHabitListOrErr instanceof Error) {
-            console.error("get deleted habit list error: ", deletedHabitListOrErr)
-            return
-        }
-        deletedHabitListOrErr.sort(function (a, b) {
-            return b.createTime - a.createTime
-        })
-        deletedHabitListOrErr.forEach(config => {
-            const cardHTML = `
+    $('#deletedHabitListBody').empty()
+    const deletedHabitListOrErr = window.electronAPI.getDeletedHabitList()
+    if (deletedHabitListOrErr instanceof Error) {
+        console.error("get deleted habit list error: ", deletedHabitListOrErr)
+        return
+    }
+    deletedHabitListOrErr.sort(function (a, b) {
+        return b.createTime - a.createTime
+    })
+    deletedHabitListOrErr.forEach(config => {
+        const cardHTML = `
             <div class="card" style="margin:0 15px 30px 15px">
             <div class="card-body">
                 <h5 class="card-title">${config.title}</h5>
@@ -170,22 +170,28 @@ $('#openTrashButton').click(function () {
             </div>
         </div>
         `
-            $('#deletedHabitListBody').append(cardHTML)
-        })
-        $('[name=restoreDeletedHabit]').click(function () {
-            const isConfirmed = confirm('确定要恢复吗？')
-            if (!isConfirmed) {
-                return
-            }
-            const deletedHabitId = $(this).val()
-            const success = window.electronAPI.restoreDeletedHabit(deletedHabitId)
-            if (!success) {
-                console.error("restore deleted habit failed, habitID: ", deletedHabitId)
-                alert(TEXT_CONTENT.SYSTEM_ERROR)
-                return
-            }
-            $(this).parent().parent().remove()
-            loadHabitList()
-        })
+        $('#deletedHabitListBody').append(cardHTML)
+    })
+    $('[name=restoreDeletedHabit]').click(function () {
+        const isConfirmed = confirm('确定要恢复吗？')
+        if (!isConfirmed) {
+            return
+        }
+        const deletedHabitId = $(this).val()
+        const success = window.electronAPI.restoreDeletedHabit(deletedHabitId)
+        if (!success) {
+            console.error("restore deleted habit failed, habitID: ", deletedHabitId)
+            alert(TEXT_CONTENT.SYSTEM_ERROR)
+            return
+        }
+        $(this).parent().parent().remove()
+        loadHabitList()
+    })
+})
+
+$('#exportData').click(function () {
+    if (!window.electronAPI.exportData()) {
+        console.error("export data failed")
+        alert(TEXT_CONTENT.SYSTEM_ERROR)
     }
-)
+})
