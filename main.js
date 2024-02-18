@@ -90,6 +90,11 @@ function createMainWindow() {
         event.returnValue = deleteHabit(habitID)
     })
 
+    // 彻底删除习惯
+    ipcMain.on('completelyDeleteHabit', (event, habitID) => {
+        event.returnValue = completelyDeleteHabit(habitID)
+    })
+
     ipcMain.on('restoreDeletedHabit', (event, habitID) => {
         event.returnValue = restoreDeletedHabit(habitID)
     })
@@ -153,6 +158,16 @@ function softDeleteFile(filePath) {
     return true
 }
 
+function hardDeleteFile(filePath) {
+    try {
+        fs.unlinkSync(filePath)
+    } catch (err) {
+        log.error(err)
+        return false
+    }
+    return true
+}
+
 function isDeletedFile(fileName) {
     return fileName.startsWith('.')
 }
@@ -161,6 +176,12 @@ function deleteHabit(habitId) {
     const configPath = path.join(configDirPath, habitId + '.json')
     const recordPath = path.join(recordDirPath, habitId + '.json')
     return softDeleteFile(configPath) && softDeleteFile(recordPath)
+}
+
+function completelyDeleteHabit(habitId) {
+    const configPath = path.join(configDirPath, '.' + habitId + '.json')
+    const recordPath = path.join(recordDirPath, '.' + habitId + '.json')
+    return hardDeleteFile(configPath) && hardDeleteFile(recordPath)
 }
 
 function restoreDeletedHabit(habitId) {

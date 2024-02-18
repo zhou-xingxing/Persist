@@ -167,6 +167,7 @@ $('#openTrashButton').click(function () {
                 <h5 class="card-title">${config.title}</h5>
                 <p class="card-text">${config.description}</p>
                 <button class="btn btn-outline-primary float-end" name="restoreDeletedHabit" value="${config.id}">恢复</button>
+                <button class="btn btn-outline-danger float-end" name="completelyDeleteHabit" value="${config.id}" style="margin-right: 15px">彻底删除</button>
             </div>
         </div>
         `
@@ -186,6 +187,20 @@ $('#openTrashButton').click(function () {
         }
         $(this).parent().parent().remove()
         loadHabitList()
+    })
+    $('[name=completelyDeleteHabit]').click(function () {
+        const isConfirmed = confirm('确定要彻底删除吗？\n此操作将无法恢复！')
+        if (!isConfirmed) {
+            return
+        }
+        const deletedHabitId = $(this).val()
+        const success = window.electronAPI.completelyDeleteHabit(deletedHabitId)
+        if (!success) {
+            console.error("completely delete habit failed, habitID: ", deletedHabitId)
+            alert(TEXT_CONTENT.SYSTEM_ERROR)
+            return
+        }
+        $(this).parent().parent().remove()
     })
 })
 

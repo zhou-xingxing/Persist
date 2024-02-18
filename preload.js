@@ -24,6 +24,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteHabit: (habitID) => {
         return ipcRenderer.sendSync('deleteHabit', habitID)
     },
+    completelyDeleteHabit: (habitID) => {
+        return ipcRenderer.sendSync('completelyDeleteHabit', habitID)
+    },
     restoreDeletedHabit: (habitID) => {
         return ipcRenderer.sendSync('restoreDeletedHabit', habitID)
     },
